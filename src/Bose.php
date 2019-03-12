@@ -2,26 +2,43 @@
 
 namespace Borizqy\Bose;
 
+use Borizqy\Bose\Basic\Request;
+
 class Bose extends Controller {
 
-	public $asciiPlain = 'aku';
-	public $asciiPrivate = 'kau';
+	protected $plain, $private;
+
+	public function __construct() {
+		$this->plain = $this->defaultPlainPrivate();
+		$this->private = $this->defaultPlainPrivate();
+	}
 
 	public function encrypt($plain, $private) {
+
+		$this->plain->length = strlen($plain);
+		$this->private->length = strlen($private);
 		
 		// converting plain-text to ascii
-		$ascii = NULL;
-		for($i=0; $i<strlen($plain); $i++) {
-			$ascii = $ascii . dechex(ord($plain[$i]));
+		for($i=1; $i<=$this->plain->length; $i++) {
+			$this->plain->ascii = $this->plain->ascii . dechex(ord($plain[$i-1]));
 		}
 
 		// converting private-key to ascii
-		$asciiPrivate = NULL;
-		for($i=0; $i<strlen($private); $i++) {
-			$asciiPrivate = $asciiPrivate . dechex(ord($private[$i]));
+		for($i=1; $i<=$this->private->length; $i++) {
+			$temp = dechex(ord($private[$i-1]));
+			$temp = (strlen($temp) == 1)? "0{$temp}": $temp;
+			$this->private->ascii = $this->private->ascii . $temp;
+			$this->private->calculation = $this->privateKeyCalculation($temp, $this->private->calculation);
 		}
 
-		return $ascii . ' - ' . $asciiPrivate;
+		// $this->private->calculation = $calculation;
+
+		// private text calculation
+		// for($i=0; $i<$this->private->length; $i++) {
+		// 	$this->private->calculation = $this->private->calculation
+		// }
+
+		return $this;
 	}
 
 }

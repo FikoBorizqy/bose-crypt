@@ -1,0 +1,21 @@
+{
+    "name": "fikoborizqy/troop",
+    "description": "Hexa is 16, and Troop is 62",
+    "type": "library",
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Fiko Borizqy",
+            "email": "Fikokuper@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Borizqy\\Troop\\": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}

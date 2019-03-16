@@ -34,17 +34,14 @@ use Borizqy\Troop\Troop;
 // print_r((new Bose())->encrypt('merdeka', 'kuncinya'));
 $class = new Bose();
 
-$text = 'aku';
-$private = 'aku';
-// $bose = $class->encrypt($text, $private);
+$text = 'bestafiko bo';
+$private = 'borizqy';
 
-$text = '100010001101101110111101';
-$public = '4108ilKvlk3NP10andwXvO3qc10bnwrBxa1vA107NFuK4p0IJ10000001dLdP';
-$bose = $class->decrypt($text, $private, $public);
 
-// $bose = base64_encode($a);
-print_r($bose);
+// print_r($class->copy()->encrypt($text, $private));
 
-// echo sha1('welcome');
-echo "\n\n" . (microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"] . "\n");
+$text = '111110011000110101001111010011111110001100100101100011010100000110101011111000111100101111000010101111010011100111100';
+print_r($class->copy()->decrypt($text, $private, 'b10vTacnXit10PfDsC44t10sYmK1hIm10tE4ZMIRn10PfDsC44s10TWTuHPYw10tE4ZJML310PfDtXYZ710u6MV7E2E10tE4ZLSPz10PfDvjTTL10sp9Et6Ok10tE4ZKcLX1000jHCmZT'));
+
+echo "\n" . (microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"] . "\n");
 exit;

@@ -2,12 +2,8 @@
 
 namespace Borizqy\Bose\Basic;
 
+use Borizqy\Bose\Basic\Request;
+
 trait DecryptStepMethods {
-
-	protected $decrypt;
-
-	protected function __dsmConstruct() {
-		$this->decrypt = new Request();
-	}
 
 }

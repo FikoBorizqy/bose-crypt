@@ -7,62 +7,48 @@ use Borizqy\Troop\Troop;
 
 class Bose extends Controller {
 
-	protected $plain, $private;
+	protected $plain, $private, $public, $return;
 
 	public function __construct() {
 		$this->plain = $this->defaultPlainPrivate();
 		$this->private = $this->defaultPlainPrivate();
-		$this->__esmConstruct();
+		$this->public = $this->defaultPlainPrivate();
+		$this->return = $this->defaultPlainPrivate();
+		$this->__cConstruct();
 	}
 
 	public function encrypt($plain, $private) {
 
 		// if value of plain-text or private-key is null, then return false
-		if(strlen($plain) == 0 || strlen($private) == 0) return false;;
+		if(strlen($plain) == 0 || strlen($private) == 0) return false;
 
+		/**
+		* preparing data
+		* 
+		* store all parameters to object,
+		*/
 		$this->plain->value = $plain;
 		$this->private->value = $private;
 		$this->plain->length = strlen($plain);
 		$this->private->length = strlen($private);
 		
 		// converting plain-text to ascii
-		for($i=1; $i<=$this->plain->length; $i++) {
-			$this->plain->ascii .= dechex(ord($plain[$i-1]));
-		}
+		$this->plain->ascii = $this->stringToAscii($this->plain->value);
 
 		// converting private-key to ascii
-		for($i=1; $i<=$this->private->length; $i++) {
-			$temp = dechex(ord($private[$i-1]));
-			$this->private->ascii .= $temp = (strlen($temp) == 1)? "0{$temp}": $temp;
-			$this->privateKeyCalculation($temp, $this->private->calculation);
-		}
+		$this->privateToAscii();		
 
-		// decide even and odd key value #2
+		// decide even and odd key value
 		$this->evenOddMapping();
 
-		// key's mapping #3
-		for($i=1; $i<=$this->plain->length; $i++) {
-			$j = $i-1;
-			$k = floor(($i + ($this->evenCheck($i)? $this->process->even: $this->process->odd)) % $this->private->length);
-			$this->plain->keysMapping .= ($k == 0)? $this->private->length: $k;
-
-			$m = 1;
-			for($k=$j*2; $k<$i*2; $k++) {
-				$temp = hexdec($this->plain->ascii[$k]) + hexdec($this->private->ascii[$this->plain->keysMapping[$j]*2-$m]) + $this->private->calculation;
-				$this->process->exchange .= (strlen($temp) == 1?'0':'') . $temp;
-				$m++;
-			}
-		}
+		// key's mapping & calculate the value of exchange
+		$this->keysMapping();
 
 		// Ordering by lowest key and then the value
-		// $this->process->exchangeBefore = $this->process->exchange;
-		$temp_exchange = $this->process->exchange = $this->numberToAlpha($this->process->exchange);
-		do {
-			$this->process->order[$temp_exchange[0]] = substr_count($temp_exchange, $temp_exchange[0]);
-			$temp_exchange = str_replace($temp_exchange[0], '', $temp_exchange);
-		} while(strlen($temp_exchange) > 0);
-		ksort($this->process->order);
-		asort($this->process->order);
+		$this->process->exchange = $this->numberToAlpha($this->process->exchange);
+
+		// make an order of exchange, categorize how many times character shows up
+		$this->CharCategories();
 
 		// huffman process
 		$this->huffmanBinary();
@@ -71,61 +57,101 @@ class Bose extends Controller {
 		$this->exToChiper();
 
 		// generating public key
-		$this->process->publicSum = rand(1,61);
+		$this->public->randomKey = rand(1,61);
 
 		foreach($this->process->order as $key => $value) {
-			$this->process->order[$key] = $value + $this->process->publicSum;
+			$this->process->order[$key] = $value + $this->public->randomKey;
 		}
 
-		$pub = json_encode($this->process->order);
-		for($i=0; $i<strlen($pub); $i++) { 
-			$set = ord($pub[$i]);
-			$this->process->publicKey .= str_pad($set, 3, '0', STR_PAD_LEFT);
+		$this->public->json = json_encode($this->process->order);
+		for($i=0; $i<strlen($this->public->json); $i++) { 
+			$x = str_pad(ord($this->public->json[$i]), 3, '0', STR_PAD_LEFT);
+			$this->public->jsonAscii .= $x;
 		}
 
-		$this->process->publicKey = str_split($this->process->publicKey, $this->process->split);
-		foreach($this->process->publicKey as $key => $value) {
-			$this->process->publicKey[$key] = '1' . str_pad(Troop::fromDec(intval("1{$value}")), $this->process->pad, '0', STR_PAD_LEFT);
+		$this->public->jsonAscii = str_split($this->public->jsonAscii, $this->process->split);
+		foreach($this->public->jsonAscii as $key => $value) {
+			$this->public->jsonAscii[$key] = '1' . str_pad(Troop::fromDec(intval("1{$value}")), $this->process->pad, '0', STR_PAD_LEFT);
 		}
 
 		// adding public-key to an object that will be returned
-		$this->encrypt->publicKey = Troop::fromDec(intval($this->process->publicSum)) . implode('', $this->process->publicKey);
+		$this->encrypt->public_key = Troop::fromDec(intval($this->public->randomKey)) . implode('', $this->public->jsonAscii);
 
-		return $this;
+		return new Request([
+			'cipher_text' => $this->encrypt->cipher,
+			'public_key' => $this->encrypt->public_key,
+		]);
 	}
 
 	public function decrypt($cipher, $private, $public) {
-		$this->process->publicSum = Troop::toDec($public[0]);
-		$this->process->order = str_split(substr($public, 1), $this->process->pad+1);
+
+		// storing paramaters to object
+		$this->encrypt->cipher = $cipher;
+		$this->encrypt->length = strlen($cipher);
+		$this->private->value = $private;
+		$this->private->length = strlen($private);
+		$this->public->randomKey = Troop::toDec($public[0]);
+		$this->encrypt->public_key = substr($public, 1);
+
+		// split-up public key
+		$this->process->order = str_split($this->encrypt->public_key, $this->process->pad+1);
+
+		// convert jsonAscii to decimal from Troop
 		foreach($this->process->order as $key => $value) {
 			$this->process->order[$key] = substr(Troop::toDec(substr($value, 1)), 1);
 		}
 
+		// imploding public-key's
 		$this->process->order = implode('', $this->process->order);
-		
-		/**
-		* if period found, then return (boolean)false.
-		* It means that user gave wrong public-key.
-		*/
-		if(strpos('0'.$this->process->order, '.') > 0) return false;
 
 		$this->process->order = str_split($this->process->order, 3);
 		foreach($this->process->order as $key => $value) {
 			$this->process->order[$key] = chr($value);
 		}
-		$this->process->order = json_decode(implode('', $this->process->order), true);
-		if(!is_array($this->process->order)) {
-			return false;
-		}
+		$this->process->order = implode('', $this->process->order);
+		// for($i=0; $i<count($this->process->order); $i++) { 
+		// 	$x = str_pad(ord($this->public->json[$i]), 3, '0', STR_PAD_LEFT);
+		// 	$this->process->order .= $x;
+		// }
+		$this->process->order = json_decode($this->process->order, true);
+		
+		// if public key incorrect, then return false
+		if(!is_array($this->process->order)) return false;
+
 		foreach($this->process->order as $key => $value) {
-			$this->process->order[$key] = $value - $this->process->publicSum;
+			$this->process->order[$key] = $value - $this->public->randomKey;
 		}
 
-		// huffman process
 		$this->huffmanBinary();
-		
-						print_r($this->process->order);
-		return $this;
+
+		$temp = array_flip($this->process->orderBinary);
+		for($i=0; $i<strlen($this->encrypt->cipher); $i++) { 
+			$this->process->temp_key .= $this->encrypt->cipher[$i];
+			if(isset($temp[$this->process->temp_key])) {
+				$this->process->exchange .= $temp[$this->process->temp_key];
+				unset($this->process->temp_key);
+			}
+		}
+
+		// convert from alphabet to numberical
+		$this->process->exchange = $this->numberToAlpha($this->process->exchange, true);
+
+		// getting plain text length
+		$this->plain->length = floor(strlen($this->process->exchange)/4);
+
+		// converting private-key to ascii
+		$this->privateToAscii();
+
+		// decide even and odd key value
+		$this->evenOddMapping();
+
+		// key's mapping & calculate the value of exchange
+		$this->keysMapping(true);
+
+		// converting ascii to plain-text
+		$this->plain->value = $this->asciiToString($this->plain->ascii);
+
+		return $this->plain->value;
 	}
 
 }

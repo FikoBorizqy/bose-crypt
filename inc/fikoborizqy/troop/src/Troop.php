@@ -72,7 +72,7 @@ class Troop {
 			$j = (isset($j)? $j: strlen($tro)) - 1;
 			$dec = (isset($dec)? $dec: 0) + ($number_flip[$tro[$i]] * pow(62, strlen($tro)-1-$i));
 		}
-		return $dec;
+		return isset($dec)? $dec: null;
 	}
 
 

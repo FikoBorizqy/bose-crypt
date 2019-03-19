@@ -122,6 +122,12 @@ abstract class Controller extends Request {
 			*/
 			$this->privateKeyCalculation($temp, $this->private->calculation);
 		}
+		$this->private->addition = $this->private->addition % $this->public->randomKey;
+		if($this->private->addition > $this->private->calculation) {
+			$this->private->calculation = $this->private->addition - $this->private->calculation;
+		} else {
+			$this->private->calculation = $this->private->addition;
+		}
 	}
 
 
@@ -150,6 +156,7 @@ abstract class Controller extends Request {
 		} else {
 			$this->private->calculation = $char_temp - $temp;
 		}
+		$this->private->addition += $char_temp;
 	}
 
 

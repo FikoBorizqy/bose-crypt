@@ -106,10 +106,9 @@ trait EncryptStepMethods {
 			$return .= dechex($temp);
 		}
 		if($this->process->maxAscii - $this->process->minAscii <= 3) {
-			$this->process->minAscii = 3 - ($this->process->maxAscii - $this->process->minAscii);
-			$this->process->minAscii = $this->process->minAscii - $this->process->minAscii;
-			$this->process->maxAscii = 3 - ($this->process->maxAscii - $this->process->minAscii);
-			$this->process->maxAscii = $this->process->maxAscii + $this->process->maxAscii;
+			$temp_diff = $this->process->maxAscii - $this->process->minAscii;
+			$this->process->minAscii = $this->process->minAscii - (3-$temp_diff);
+			$this->process->maxAscii = $this->process->maxAscii + (3-$temp_diff);
 		}
 		$this->process->minAscii = str_pad(dechex($this->process->minAscii), 2, '0', STR_PAD_LEFT);
 		$this->process->maxAscii = str_pad(dechex($this->process->maxAscii), 2, '0', STR_PAD_LEFT);

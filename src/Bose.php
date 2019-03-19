@@ -82,6 +82,9 @@ class Bose extends Controller {
 		$this->private->value = $private;
 		$this->plain->length = strlen($plain);
 		$this->private->length = strlen($private);
+		// generating random integer
+		$this->public->randomKey = rand(1,61);
+
 
 		/**
 		* Converting string or text to ASCII.
@@ -123,9 +126,6 @@ class Bose extends Controller {
 		
 		// converting data becoming encrypted
 		$this->exToChiper();
-
-		// generating public key
-		$this->public->randomKey = rand(1,61);
 
 		foreach($this->process->order as $key => $value) {
 			$this->process->order[$key] = $value + $this->public->randomKey;

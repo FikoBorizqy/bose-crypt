@@ -21,6 +21,7 @@ trait DecryptStepMethods {
 			}
 			$return .= chr($temp);
 		}
+		// print_r($return);exit;
 		return $return;
 	}
 

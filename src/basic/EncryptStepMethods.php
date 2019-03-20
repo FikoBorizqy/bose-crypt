@@ -51,7 +51,11 @@ trait EncryptStepMethods {
 
 	/**
 	* Converting String to ASCII
-	* @example "me" becomes "6b65"
+	* 
+	* Once converting string to ASCII completed, then this method will
+	* collect lowest number and the highest number base on ASCII.
+	* 
+	* Example: "me" becomes "6b65"
 	* 
 	* @param String $string This text will be converted to ascii
 	* @return String $string ascii character of string

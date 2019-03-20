@@ -1,7 +1,31 @@
 <?php
 
+/**
+ * Bose-Cryptography
+ * 
+ * Cryptography that will cencrypt data to be binary codes
+ * with the decided private-key and decrypt binary codes
+ * to be data as developer/user that encrypted before
+ * by private-key and public-key(that will be generated once
+ * doing encryption).
+ * 
+ * @package Bose Cryptography
+ * @author Fiko Borizqy <fiko@dr.com>
+ * @license MIT
+ * @license https://choosealicense.com/licenses/mit/
+ * @see https://github.com/fikoborizqy/bose-crypt
+ */
+
 namespace Borizqy\Bose\Basic;
 
+/**
+ * Request Instance
+ * 
+ * Base object, so when getting undefined property or undefined method,
+ * is will automatically return null value.
+ * 
+ * @access public
+ */
 class Request {
 
 	/**

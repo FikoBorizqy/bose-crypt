@@ -1,93 +1,52 @@
 <?php
 
 /**
- * It will be used by Controller
- */
+* Bose-Cryptography
+* 
+* Cryptography that will cencrypt data to be binary codes
+* with the decided private-key and decrypt binary codes
+* to be data as developer/user that encrypted before
+* by private-key and public-key(that will be generated once
+* doing encryption).
+* 
+* @package Bose Cryptography
+* @author Fiko Borizqy <fiko@dr.com>
+* @license MIT
+* @license https://choosealicense.com/licenses/mit/
+* @see https://github.com/fikoborizqy/bose-crypt
+*/
 
 namespace Borizqy\Bose\Basic;
 
 use Borizqy\Bose\Basic\Request;
 
 /**
- * Encryption Class
+ * Encryption Trait
  * 
  * This class contains methods that are used for encrypting data or
  * plain-text. This class used by Controller class.
  * 
- * @see Borizqy\Bose\Controller()
+ * @access protected
+ * @see src/Controller.php
  */
 trait EncryptStepMethods {
 
 	/**
-	 * @var $encrypt	Whole temporary data will be stored here before being
-	 * 					returned.
+	 * Exchange to Cipher
+	 * 
+	 * Converting string to Huffman's Binary, this huffman's binary will 
+	 * be return as the cipher-text.
+	 * 
+	 * Example: "adbcabad" becomes "0001101100100001"
+	 * 
+	 * @property String $this->process->exchange	(Requried) String before converted to Huffman's Binary
+	 * @property String $this->encrypt->cipher 		(Return) Huffman's Binary of exchange
 	 */
-	protected $encrypt;
-
-
-
-	/**
-	 * @var $encrypt	Whole temporary data will be stored here before being
-	 * 					returned.
-	 */
-	protected function __esmConstruct() {
-		$this->encrypt = new Request();
-	}
-
-	public function numberToAlpha($text, $fromAlpha = false) {
-		$number = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-		$alpha  = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
-		if($fromAlpha === true) {
-			$temp = $number;
-			$number = $alpha;
-			$alpha = $temp;
-		}
-		return str_replace($number, $alpha, strval($text));
-	}
-
-	protected function exToChiper() {
+	protected function exToCipher() {
 		$this->encrypt->cipher = $this->process->exchange;
 		foreach($this->process->orderBinary as $key => $value) {
 			$this->encrypt->cipher = str_replace($key, $value, $this->encrypt->cipher);
 		}
-	}
-
-	protected function huffmanBinary() {
-		$huffman = new Request(['order' => $this->process->order]);
-		while(count($huffman->order) > 1) {
-			// print_r($huffman->order);
-			$huffman->key = null;
-			$huffman->value = null;
-			$huffman->binary = [];
-			foreach(array_slice($huffman->order, 0, 2, TRUE) as $key => $value) {
-				$huffman->key .= $key;
-				$huffman->value += $value;
-				unset($huffman->order[$key]);
-				array_push($huffman->binary, $key);
-				$huffman->i++;
-			}
-			
-			$huffman->binaryTemp = [];
-			foreach($huffman->binary as $key => $val) {
-				if(isset($this->process->orderBinary[$val])) {
-					foreach($this->process->orderBinary[$val] as $key_old => $val_old) {
-						$huffman->binaryTemp[$key_old] = $key . $val_old;
-					}
-					unset($this->process->orderBinary[$val]);
-				} else {
-					$huffman->binaryTemp[$val] = $key;
-				}
-			}
-			$this->process->orderBinary[$huffman->key] = $huffman->binaryTemp;
-
-			$huffman->order[$huffman->key] = $huffman->value;
-			ksort($huffman->order);
-			asort($huffman->order);
-		}
-
-		// print_r($huffman->order);
-		$this->process->orderBinary = current($this->process->orderBinary);
-		$this->process->orderCompress = $huffman->order;
 	}
 
 	/**
@@ -113,15 +72,5 @@ trait EncryptStepMethods {
 		$this->process->minAscii = str_pad(dechex($this->process->minAscii), 2, '0', STR_PAD_LEFT);
 		$this->process->maxAscii = str_pad(dechex($this->process->maxAscii), 2, '0', STR_PAD_LEFT);
 		return $return;
-	}
-
-	protected function charCategories() {
-		$temp_exchange = $this->process->exchange;
-		do {
-			$this->process->order[$temp_exchange[0]] = substr_count($temp_exchange, $temp_exchange[0]);
-			$temp_exchange = str_replace($temp_exchange[0], '', $temp_exchange);
-		} while(strlen($temp_exchange) > 0);
-		ksort($this->process->order);
-		asort($this->process->order);
 	}
 }

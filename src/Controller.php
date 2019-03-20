@@ -1,7 +1,19 @@
 <?php
 
 /**
- * This Abstract Controller class will be required by Bose class.
+ * Bose-Cryptography
+ * 
+ * Cryptography that will cencrypt data to be binary codes
+ * with the decided private-key and decrypt binary codes
+ * to be data as developer/user that encrypted before
+ * by private-key and public-key(that will be generated once
+ * doing encryption).
+ * 
+ * @package Bose Cryptography
+ * @author Fiko Borizqy <fiko@dr.com>
+ * @license MIT
+ * @license https://choosealicense.com/licenses/mit/
+ * @see https://github.com/fikoborizqy/bose-crypt
  */
 
 namespace Borizqy\Bose;
@@ -14,33 +26,57 @@ use Borizqy\Bose\Basic\DecryptStepMethods;
  * Bose Controller
  * 
  * You can't make an instance by this due to an abstract class,
- * you can make an instance by Bose.
+ * you can make an instance by Bose. This Abstract Controller 
+ * class will be required by Bose class.
+ * 
+ * @uses src/Bose.php
  */
 abstract class Controller extends Request {
 
-
-	
+	/**
+	 * @see src/basic/EncryptStepMethods.php
+	 * @see src/basic/DecryptStepMethods.php
+	 */
 	use EncryptStepMethods, DecryptStepMethods;
 
 
 
 	/**
 	 * @var $plain		Whole plain-text data will be stored in this property.
+	 */
+	protected $plain;
+	
+	/**
 	 * @var $private	Whole private-key data will be stored in this property.
+	 */
+	protected $private;
+	
+	/**
 	 * @var $public		Whole public-key data will be stored in this property.
+	 */
+	protected $public;
+
+	/**
 	 * @var $process	Object to placed whole data while processing.
 	 */
-	protected $plain, $private, $public, $process;
+	protected $process;
+
+	/**
+	 * @var $encrypt	Whole temporary data will be stored here before being returned.
+	 */
+	protected $encrypt;
 
 
 
 	/**
-	* Controller Construction
+	* Create New Instance of Bose
 	* 
-	* This will be executed when developer|user creates
-	* a new Bose instance.
+	* Clear all recent objects that are stored, and creates
+	* new Bose instance with default null object.
+	* 
+	* @return Object new Bose instance
 	*/
-	protected function __cConstruct() {
+	protected function copy() {
 		/**
 		* Storing new Request Instance for each properties
 		* @see src/basic/Request.php
@@ -50,6 +86,7 @@ abstract class Controller extends Request {
 		$this->private = new Request();
 		$this->public = new Request();
 		$this->process = new Request();
+		$this->encrypt = new Request();
 		$this->process = new Request([
 			'order' => [],
 			'orderCompress' => [],
@@ -65,27 +102,6 @@ abstract class Controller extends Request {
 			$this->process->split = 14;
 			$this->process->pad = 9;
 		}
-
-		/**
-		* Encryption Trait Construction
-		* @see src/basic/EncryptStepMethods.php
-		* @see EncryptStepMethods::__esmConstruct()
-		*/
-		$this->__esmConstruct();
-	}
-
-
-
-	/**
-	* Create New Instance of Bose
-	* 
-	* Clear all recent objects that are stored, and creates
-	* new Bose instance with default null object.
-	* 
-	* @return Object new Bose instance
-	*/
-	protected function copy() {
-		return new Bose();
 	}
 
 
@@ -107,10 +123,10 @@ abstract class Controller extends Request {
 	/**
 	* Converting private-key to ASCII
 	* 
-	* @var Integer	$this->private->length		(Required) Total number of characters of private-key
-	* @var String	$this->private->value		(Required) This will be converted to ASCII
-	* @var String	$this->private->ascii		(Return) Private-key ASCII value will be stored in this property
-	* @var Integer	$this->private->calculation	(Return) Private-key Substraction
+	* @property Integer	$this->private->length		(Required) Total number of characters of private-key
+	* @property String	$this->private->value		(Required) This will be converted to ASCII
+	* @property String	$this->private->ascii		(Return) Private-key ASCII value will be stored in this property
+	* @property Integer	$this->private->calculation	(Return) Private-key Substraction
 	*/
 	public function privateToAscii() {
 		for($i=1; $i<=$this->private->length; $i++) {
@@ -213,6 +229,168 @@ abstract class Controller extends Request {
 				}
 			}
 		}
+	}
+
+
+
+	/**
+	 * Converting Numberal to Alphabet
+	 * 
+	 * this method will converting numeral to alphabet or alphabet to 
+	 * numeral.
+	 * 
+	 * @param String|Integer	$text			text or integer that will be converted
+	 * @param Boolean			$fromAlpha		(default: false) "false" means this method will convert
+	 * 											from numeral to alphabet.
+	 * @return String|Integer					Return numeral or alphabet, the result of convertion.
+	 */
+	public function numberToAlpha($text, $fromAlpha = false) {
+		$number = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+		$alpha  = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+		if($fromAlpha === true) {
+			$temp = $number;
+			$number = $alpha;
+			$alpha = $temp;
+		}
+		return str_replace($number, $alpha, strval($text));
+	}
+
+
+
+	/**
+	 * Calculate Each Character
+	 * 
+	 * Calculate how many times each alphabet shows up on the plain-text.
+	 * Then, it will be order by key on ascending and then value on 
+	 * ascending as well.
+	 * 
+	 * Example:
+	 * exchange: "adbcabad"
+	 * order: step #1 = [
+	 * 		"a" => 3,
+	 * 		"d" => 2,
+	 * 		"b" => 2,
+	 * 		"c" => 1,
+	 * ]
+	 * step #2 = [
+	 * 		"a" => 3,
+	 * 		"b" => 2,
+	 * 		"c" => 1,
+	 * 		"d" => 2,
+	 * ]
+	 * step #3 = [
+	 * 		"c" => 1,
+	 * 		"b" => 2,
+	 * 		"d" => 2,
+	 * 		"a" => 3,
+	 * ]
+	 * 
+	 * @property String	$this->process->exchange	(Required) alphabet that are in string
+	 * @property Array 	$this->process->order		(Return) array of the result by exchange
+	 */
+	protected function charCategories() {
+		$temp_exchange = $this->process->exchange;
+		do {
+			$this->process->order[$temp_exchange[0]] = substr_count($temp_exchange, $temp_exchange[0]);
+			$temp_exchange = str_replace($temp_exchange[0], '', $temp_exchange);
+		} while(strlen($temp_exchange) > 0);
+		ksort($this->process->order);
+		asort($this->process->order);
+	}
+
+
+
+	/**
+	 * Processing Huffman Algorithm
+	 * 
+	 * Example: 
+	 * order: #1 [
+	 * 		"c" => 1,
+	 * 		"b" => 2,
+	 * 		"d" => 2,
+	 * 		"a" => 3,
+	 * ]
+	 * order_binary: #1 [
+	 * 		"c" => 11,
+	 * 		"b" => 10,
+	 * 		"d" => 01,
+	 * 		"a" => 00,
+	 * ]
+	 * 
+	 * @property Array 	$this->process->order 			(Requried) An array that will be calculate
+	 * @property Array 	$this->process->orderBinary		(Return) Array of result
+	 * @property String	$this->process->orderCompress	(Return) Order of array from the least to the most.
+	 */
+	protected function huffmanBinary() {
+		/**
+		 * Converting array to object of Request instance.
+		 * 
+		 * Example:
+		 * from: $variable['item_1']
+		 * to: $variable->item_1
+		 */
+		$huffman = new Request(['order' => $this->process->order]);
+		
+		/**
+		 * Looping each item of array until it's item just left one.
+		 * 
+		 * Example:
+		 * from: [
+		 * 		"c" => 1,
+		 * 		"b" => 2,
+		 * 		"d" => 2,
+		 * 		"a" => 3
+		 * ]
+		 * to: [
+		 * 		"cbda" => 8
+		 * ]
+		 */
+		while(count($huffman->order) > 1) {
+			
+			/**
+			 * Preparing default var's value for each looping
+			 */
+			$huffman->key = null;
+			$huffman->value = null;
+			$huffman->binary = [];
+			$huffman->binaryTemp = [];
+
+			/**
+			 * Slicing 2 items at beginning of $huffman->order, loop for each item.
+			 */
+			foreach(array_slice($huffman->order, 0, 2, TRUE) as $key => $value) {
+				$huffman->key .= $key;
+				$huffman->value += $value;
+				unset($huffman->order[$key]);
+				array_push($huffman->binary, $key);
+				$huffman->i++;
+			}
+			
+			/**
+			 * Loop $huffman->binary above, and make an array with value of 
+			 * huffman's binary.
+			 */
+			foreach($huffman->binary as $key => $val) {
+				if(isset($this->process->orderBinary[$val])) {
+					foreach($this->process->orderBinary[$val] as $key_old => $val_old) {
+						$huffman->binaryTemp[$key_old] = $key . $val_old;
+					}
+					unset($this->process->orderBinary[$val]);
+				} else {
+					$huffman->binaryTemp[$val] = $key;
+				}
+			}
+			$this->process->orderBinary[$huffman->key] = $huffman->binaryTemp;
+			$huffman->order[$huffman->key] = $huffman->value;
+			ksort($huffman->order);
+			asort($huffman->order);
+		}
+
+		/**
+		 * Storing to object
+		 */
+		$this->process->orderBinary = current($this->process->orderBinary);
+		$this->process->orderCompress = $huffman->order;
 	}
 
 }

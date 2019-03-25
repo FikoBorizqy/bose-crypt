@@ -49,6 +49,8 @@ trait EncryptStepMethods {
 		}
 	}
 
+
+
 	/**
 	* Converting String to ASCII
 	* 
@@ -61,18 +63,35 @@ trait EncryptStepMethods {
 	* @return String $string ascii character of string
 	*/
 	public function stringToAscii($string) {
+		/**
+		 * Preparing data
+		 */
 		$return = null;
+		$rand1 = rand(1, 3);
+		$rand2 = rand(1, 3);
+
+		/**
+		 * convernting each character to ASCII, then converting
+		 * them to hexadecimal.
+		 */
 		for($i=1; $i<=strlen($string); $i++) {
 			$temp = ord($string[$i-1]);
 			$this->process->minAscii = ($temp<$this->process->minAscii || is_null($this->process->minAscii))? $temp: $this->process->minAscii;
 			$this->process->maxAscii = ($temp>$this->process->maxAscii)? $temp: $this->process->maxAscii;
 			$return .= dechex($temp);
 		}
-		if($this->process->maxAscii - $this->process->minAscii <= 3) {
-			$temp_diff = $this->process->maxAscii - $this->process->minAscii;
-			$this->process->minAscii = $this->process->minAscii - (3-$temp_diff);
-			$this->process->maxAscii = $this->process->maxAscii + (3-$temp_diff);
-		}
+
+		/**
+		 * Adding extra border for minimum and maximum characters of ASCII
+		 */
+		$this->process->minAscii = $this->process->minAscii - $rand1;
+		$this->process->minAscii = ($this->process->minAscii<1)? $this->process->minAscii+$rand1: $this->process->minAscii;
+		$this->process->maxAscii = $this->process->maxAscii + $rand2;
+		$this->process->maxAscii = ($this->process->maxAscii>254)? $this->process->maxAscii-$rand2: $this->process->maxAscii;
+
+		/**
+		 * Converting to Hex number
+		 */
 		$this->process->minAscii = str_pad(dechex($this->process->minAscii), 2, '0', STR_PAD_LEFT);
 		$this->process->maxAscii = str_pad(dechex($this->process->maxAscii), 2, '0', STR_PAD_LEFT);
 		return $return;

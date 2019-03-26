@@ -96,9 +96,9 @@ abstract class Controller extends Request {
 		]);
 
 		/**
-		 * Checking is the maximum number can be count by the system
+		 * Checking 64-bit system structure
 		 */
-		if(strlen(intval('999999999999999999999')) > 11) {
+		if(strlen(PHP_INT_MAX) > 11) {
 			$this->process->split = 14;
 			$this->process->pad = 9;
 		}

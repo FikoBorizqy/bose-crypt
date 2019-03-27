@@ -1,6 +1,6 @@
 <?php
 
-namespace Borizqy\Troop;
+namespace Borizqy\Bose\Basic;
 
 class Troop {
 

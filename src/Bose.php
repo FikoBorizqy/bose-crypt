@@ -19,7 +19,7 @@
 namespace Borizqy\Bose;
 
 use Borizqy\Bose\Basic\Request;
-use Borizqy\Troop\Troop;
+use Borizqy\Bose\Basic\Troop;
 
 /**
 * Bose Basic Class

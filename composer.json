@@ -1,0 +1,27 @@
+{
+    "name": "fikoborizqy/bose-crypt",
+    "description": "Cryptography (Borizqy Secure Encryption) encrypts by private-key you decided, decrypts by private-key you decided and public-key that was generated once you encrypt.",
+    "type": "library",
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Fiko Borizqy",
+            "email": "fiko@dr.com"
+        }
+    ],
+    "autoload": {
+        "classmap": [
+            "inc/fikoborizqy/troop/src/Troop.php",
+            "src/basic/EncryptStepMethods.php",
+            "src/basic/DecryptStepMethods.php",
+            "src/basic/Request.php",
+            "src/Controller.php",
+            "src/Bose.php"
+        ]
+    },
+    "minimum-stability": "dev",
+    "require": {}
+}

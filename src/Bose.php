@@ -41,9 +41,9 @@ class Bose extends Controller {
 	* 
 	* @param String $plain		Text that will be converted to cipher-text
 	* @param String $private	String to encrypt and also to decrypt to be plain-text
-	* @return Array				This array will return the cipher-text and public-key, 
-	* 							whereas public-key used to decrypt the cipher-text as 
-	* 							well as the private-key.
+	* @return Request			This object will return the plain-text, cipher-text, 
+	* 							private-key, public-key. whereas public-key used to 
+	* 							decrypt the cipher-text as well as the private-key.
 	*/
 	public function encrypt($plain, $private) {
 
@@ -155,8 +155,10 @@ class Bose extends Controller {
 		 * Return of encryption
 		 */
 		return new Request([
+			'plain_text' => $plain,
 			'cipher_text' => $this->encrypt->cipher,
 			'public_key' => $this->encrypt->public_key,
+			'private_key' => $private,
 		]);
 	}
 
@@ -172,7 +174,7 @@ class Bose extends Controller {
 	* @param String $private	String to encrypt and also to decrypt to be plain-text
 	* @param String $public		String that needed to decrypt data from cipher-text,
 	* 							that are generated when encrypting data.
-	* @return String			Plain-text of the cipher text,
+	* @return Request			Object of decryption
 	*/
 	public function decrypt($cipher, $private, $public) {
 
@@ -272,15 +274,18 @@ class Bose extends Controller {
 		*/
 		$this->plain->value = $this->asciiToString($this->plain->ascii);
 
-		$return = $this->plain->value;
-
-		/**
-		* Reset all object
-		*/
-		$this->copy();
+		$return = new Request([
+			'plain_text' => $this->plain->value,
+			'cipher_text' => $cipher,
+			'public_key' => $public,
+			'private_key' => $private,
+		]);
 
 		/**
 		 * Returning decryption's method
+		 */
+		/**
+		 * Return of encryption
 		 */
 		return $return;
 	}

@@ -211,22 +211,23 @@ abstract class Controller extends Request {
 		for($i=1; $i<=$this->plain->length; $i++) {
 			$j = $i-1;
 			$k = floor(($i + ($this->evenCheck($i)? $this->process->even: $this->process->odd)) % $this->private->length);
-			$this->plain->keysMapping .= ($k == 0)? $this->private->length: $k-1;
+			$this->plain->keysMapping .= ($k == 0)? $this->private->length-1: $k-1;
 
+			/**
+			 * if($decrypt === true) means it is process of decrypting data
+			 * else process of encrypting data
+			 */
 			if($decrypt === true) {
 				$temp = $this->process->exchange;
-				$x = $i*4;
-				$a = $this->process->exchange[$x-4] . $this->process->exchange[$x-3];
-				$b = $this->process->exchange[$x-2] . $this->process->exchange[$x-1];
-				$this->plain->ascii .= dechex($a - $this->private->calculation - hexdec($this->private->ascii[$this->plain->keysMapping[$j]*2-1]));
-				$this->plain->ascii .= dechex($b - $this->private->calculation - hexdec($this->private->ascii[$this->plain->keysMapping[$j]*2-2]));
+				$a = $this->process->exchange[$j*4] . $this->process->exchange[$j*4+1];
+				$b = $this->process->exchange[$j*4+2] . $this->process->exchange[$j*4+3];
+				$this->plain->ascii .= dechex($a - $this->private->calculation - hexdec($this->private->ascii[$this->plain->keysMapping[$j]*2+1]));
+				$this->plain->ascii .= dechex($b - $this->private->calculation - hexdec($this->private->ascii[$this->plain->keysMapping[$j]*2]));
 			} else {
-				$m = 1;
-				for($k=$j*2; $k<$i*2; $k++) {
-					$temp = hexdec($this->plain->ascii[$k]) + hexdec($this->private->ascii[$this->plain->keysMapping[$j]*2-$m]) + $this->private->calculation;
-					$this->process->exchange .= (strlen($temp) == 1?'0':'') . $temp;
-					$m++;
-				}
+				$temp = hexdec($this->plain->ascii[$j*2]) + hexdec($this->private->ascii[$this->plain->keysMapping[$j]*2+1]) + $this->private->calculation;
+				$this->process->exchange .= str_pad($temp, 2, '0', STR_PAD_LEFT);
+				$temp = hexdec($this->plain->ascii[$j*2+1]) + hexdec($this->private->ascii[$this->plain->keysMapping[$j]*2]) + $this->private->calculation;
+				$this->process->exchange .= str_pad($temp, 2, '0', STR_PAD_LEFT);
 			}
 		}
 	}

@@ -29,7 +29,7 @@ $class = new \Borizqy\Bose\Bose();
 2. Encrypting data  
 To encrypt data, you need to decide the private-key. This private key will be used to encrypt and decrypt data:
 ```
-$example = $class->encrypt("text example". "this my key");
+$example = $class->encrypt("text example", "this my key", "a", "y");
 ```
 The output will be of encryption above will be like this:
 ```

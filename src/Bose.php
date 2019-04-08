@@ -41,11 +41,16 @@ class Bose extends Controller {
 	* 
 	* @param String $plain		Text that will be converted to cipher-text
 	* @param String $private	String to encrypt and also to decrypt to be plain-text
+	* @param String $minChar	(Default: null) Decide what is the lowest character, if
+	* 							you don't decide it, system will randomly decide it.
+	* @param String $maxChar	(Default: null) Decide what is the highest character, if
+	* 							you don't decide it, system will randomly decide it.
+	* @param String $private	String to encrypt and also to decrypt to be plain-text
 	* @return Request			This object will return the plain-text, cipher-text, 
 	* 							private-key, public-key. whereas public-key used to 
 	* 							decrypt the cipher-text as well as the private-key.
 	*/
-	public function encrypt($plain, $private) {
+	public function encrypt($plain, $private, $minChar = null, $maxChar = null) {
 
 		/**
 		* Checking Parameters Existence - if value of plain-text or private-key is null,
@@ -65,6 +70,8 @@ class Bose extends Controller {
 		$this->private->value = $private;
 		$this->plain->length = strlen($plain);
 		$this->private->length = strlen($private);
+		$this->process->minAscii = (is_null($minChar) || is_bool($minChar))? null:ord($minChar);
+		$this->process->maxAscii = (is_null($maxChar) || is_bool($maxChar))? null:ord($maxChar);
 
 		/**
 		* Generate Random Key - this random key in integer will be used to encrypt data.

@@ -67,8 +67,8 @@ trait EncryptStepMethods {
 		 * Preparing data
 		 */
 		$return = null;
-		$rand1 = rand(1, 3);
-		$rand2 = rand(1, 3);
+		$rand1 = is_null($this->process->minAscii)? rand(1, 3): 0;
+		$rand2 = is_null($this->process->minAscii)? rand(1, 3): 0;
 
 		/**
 		 * convernting each character to ASCII, then converting

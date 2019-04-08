@@ -1,4 +1,4 @@
-# bose-crypt
+# BOSE Cryptography
 Encrypt and Decrypt string by giving private-key before doing encryption, and insert public-key &amp; private-key for decrypting.
 
 ## Installation
@@ -29,7 +29,7 @@ $class = new \Borizqy\Bose\Bose();
 2. Encrypting data  
 To encrypt data, you need to decide the private-key. This private key will be used to encrypt and decrypt data:
 ```
-$example = $class->encrypt("text example". "this my key");
+$example = $class->encrypt("text example", "this my key");
 ```
 The output will be of encryption above will be like this:
 ```

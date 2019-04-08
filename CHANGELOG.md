@@ -9,7 +9,7 @@ All differences between versions.
 ### Added:
 - CHANGELOG.md added
 - Add lowest and highest character when encrypting data. You can add lowest and highest characters show up when private-key is wrong, take a look on the order of characters:
-  ![image](https://wiki.p2energysolutions.com/download/attachments/2134138/Sortorder.JPG?version=1&modificationDate=1465427065253&api=v2)
+  [![image](https://raw.githubusercontent.com/fikoborizqy/bose-crypt/master/inc/order.jpeg)](https://github.com/fikoborizqy/bose-crypt/blob/master/inc/order.jpeg)
 
 ### Changed:
 - README.md updated
